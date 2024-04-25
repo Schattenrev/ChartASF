@@ -3,85 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pie Chart Example</title>
+    <title>Pie Chart</title>
+    <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* CSS to adjust the size of the canvas element */
+        #pieChart {
+            max-width: 400px; /* Set maximum width */
+            max-height: 400px; /* Set maximum height */
+            width: 100%; /* Make sure it scales to its container */
+            height: auto; /* Automatically adjust height based on width */
+        }
+    </style>
+    
 </head>
 <body>
-    <select id="yearSelector">
-        <option value="2017">2017</option>
-        <option value="2018">2018</option>
-    </select>
-    <canvas id="myChart"></canvas>
+    <h2>Pie Chart</h2>
+    <div>
+        <label for="year">Select a Year:</label>
+        <select id="year">
+            <!-- Options will be dynamically populated from JavaScript -->
+        </select>
+    </div>
+    <div    >
+        <canvas id="pieChart" width="400" height="400"></canvas>
+    </div>
 
     <script>
-    // Function to fetch CSV file
-    async function fetchCSV(url) {
-        const response = await fetch(url);
-        const data = await response.text();
-        return data;
-    }
+        // Parse CSV data
+        const csvData = `Year,Status,Count
+                        2017,Closed,18
+                        2017,Open,36
+                        2018,Closed,47
+                        2018,Open,1522
+                        2019,Open,1585
+                        2020,Open,1956
+                        2021,Closed,7
+                        2021,Open,3374
+                        2022,Open,3399
+                        2023,Open,3907
+                        2024,Open,1550`;
 
-    // Function to update pie chart based on selected year
-    function updateChart(selectedYear) {
-        fetchCSV('path_to_your_csv_file.csv')
-            .then(csvData => {
-                // Parse CSV data
-                const rows = csvData.split('\n').map(row => row.split(','));
-                const filteredRows = rows.filter(row => row[0].trim() === selectedYear && (row[1].trim() === 'Closed' || row[1].trim() === 'Open')); // Filter for selected year and both statuses
-                
-                if(filteredRows.length === 0){
-                    console.error('No data available for the selected year:', selectedYear);
-                    return;
-                }
+        // Split CSV into rows and parse each row
+        const rows = csvData.trim().split('\n').slice(1); // Remove header
+        const data = rows.map(row => row.split(','));
 
-                const labels = filteredRows.map(row => row[1].trim()); // Include both "Closed" and "Open" statuses
-                const data = filteredRows.map(row => parseFloat(row[2]));
+        // Get unique years
+        const years = Array.from(new Set(data.map(row => row[0])));
 
-                // Get chart canvas element
-                const ctx = document.getElementById('myChart').getContext('2d');
+        // Populate dropdown menu with years
+        const yearDropdown = document.getElementById('year');
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearDropdown.appendChild(option);
+        });
 
-                // Check if chart already exists, destroy it, and then create new chart
-                if (window.myChart) {
-                    window.myChart.destroy();
-                }
+        // Function to filter data based on selected year
+        function filterData(selectedYear) {
+            return data.filter(row => row[0] === selectedYear);
+        }
 
-                window.myChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Pie Chart',
-                            data: data,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.5)', // Color for "Closed"
-                                'rgba(54, 162, 235, 0.5)', // Color for "Open"
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
+        // Function to generate pie chart
+        function generatePieChart(selectedYear) {
+            const filteredData = filterData(selectedYear);
+            const labels = filteredData.map(row => row[1]); // Status
+            const counts = filteredData.map(row => parseInt(row[2])); // Count
+
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            // Destroy previous chart instance
+            if(window.myPieChart !== undefined) {
+                window.myPieChart.destroy();
+            }
+            // Create new chart instance
+            window.myPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: ['#FF6384', '#36A2EB'], // Colors for Closed and Open
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: `Status Distribution for Year ${selectedYear}`
                     }
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching or parsing CSV file:', error);
+                }
             });
-    }
+        }
 
-    // Add event listener to dropdown to update chart when year selection changes
-    document.getElementById('yearSelector').addEventListener('change', function() {
-        const selectedYear = this.value;
-        updateChart(selectedYear);
-    });
+        // Initial chart generation
+        generatePieChart(years[0]);
 
-    // Initial chart creation with default year
-    updateChart('2017');
-</script>
+        // Event listener for dropdown change
+        yearDropdown.addEventListener('change', function() {
+            const selectedYear = this.value;
+            generatePieChart(selectedYear);
+        });
+    </script>
 </body>
-</html> 
+</html>
