@@ -20,12 +20,12 @@
         // URL of your CSV file
         const csvUrl = 'path_to_your_csv_file.csv';
 
-        // Parse CSV data, filter for year 2017, and create chart
+        // Parse CSV data, filter for year 2017 and both statuses, and create chart
         fetchCSV(csvUrl)
             .then(csvData => {
                 // Parse CSV data
                 const rows = csvData.split('\n').map(row => row.split(','));
-                const filteredRows = rows.filter(row => row[0].trim() === '2017'); // Filter for year 2017
+                const filteredRows = rows.filter(row => row[0].trim() === '2017' && (row[1].trim() === 'Closed' || row[1].trim() === 'Open')); // Filter for year 2017 and both statuses
                 const labels = filteredRows.slice(1).map(row => row[1].trim());
                 const data = filteredRows.slice(1).map(row => parseFloat(row[2]));
 
@@ -39,8 +39,8 @@
                             label: 'Pie Chart',
                             data: data,
                             backgroundColor: [
-                                'rgba(255, 99, 132, 0.5)',
-                                'rgba(54, 162, 235, 0.5)',
+                                'rgba(255, 99, 132, 0.5)', // Color for "Closed"
+                                'rgba(54, 162, 235, 0.5)', // Color for "Open"
                             ],
                             borderColor: [
                                 'rgba(255, 99, 132, 1)',
