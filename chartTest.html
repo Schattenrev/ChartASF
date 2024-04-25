@@ -26,8 +26,8 @@
                 // Parse CSV data
                 const rows = csvData.split('\n').map(row => row.split(','));
                 const filteredRows = rows.filter(row => row[0].trim() === '2017' && (row[1].trim() === 'Closed' || row[1].trim() === 'Open')); // Filter for year 2017 and both statuses
-                const labels = filteredRows.slice(1).map(row => row[1].trim());
-                const data = filteredRows.slice(1).map(row => parseFloat(row[2]));
+                const labels = filteredRows.map(row => row[1].trim()); // Include both "Closed" and "Open" statuses
+                const data = filteredRows.map(row => parseFloat(row[2]));
 
                 // Create pie chart
                 const ctx = document.getElementById('myChart').getContext('2d');
