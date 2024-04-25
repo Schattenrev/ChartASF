@@ -5,37 +5,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js">
-    <script type="text/javascript" src="Chart.js"></script>
-    <script type="text/javascript" src="xlsx.full.min.js"></script>
-    <script type="text/javascript" src="chartjs-plugin-datasource.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource@0.1.0"></script>
 </head>
 
 <body>
-
-    <canvas id="testchart"></canvas>
-
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
 
     <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
+        var chartColors = {
+            red: 'rgb(255, 99, 132)',
+            blue: 'rgb(54, 162, 235)'
+        };
 
-        var chart = new Chart(ctx, {
-
+        var color = Chart.helpers.color;
+        var config = {
             type: 'bar',
-
+            data: {
+                datasets: [{
+                    type: 'line',
+                    yAxisID: 'temperature',
+                    backgroundColor: 'transparent',
+                    borderColor: chartColors.red,
+                    pointBackgroundColor: chartColors.red,
+                    tension: 0,
+                    fill: false
+                }, {
+                    yAxisID: 'precipitation',
+                    backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
+                    borderColor: 'transparent'
+                }]
+            },
             plugins: [ChartDataSource],
-
             options: {
-
-                daatasource: {
-
-                    url: 'sample-dataset.xlsx'
-
+                title: {
+                    display: true,
+                    text: 'Sheet data source (dataset) sample'
+                },
+                scales: {
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Month'
+                        }
+                    }],
+                    yAxes: [{
+                        id: 'temperature',
+                        gridLines: {
+                            drawOnChartArea: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Temperature (°C)'
+                        }
+                    }, {
+                        id: 'precipitation',
+                        position: 'right',
+                        gridLines: {
+                            drawOnChartArea: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Precipitation (mm)'
+                        }
+                    }]
+                },
+                plugins: {
+                    datasource: {
+                        type: 'sheet',
+                        url: 'sample-dataset.xlsx',
+                        rowMapping: 'dataset',
+                        datasetLabels: 'Sheet1!A2:A3',
+                        indexLabels: 'Sheet1!B1:H1',
+                        data: 'Sheet1!B2:H3'
+                    }
                 }
-
             }
+        };
 
-        });
+        window.onload = function () {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            window.myChart = new Chart(ctx, config);
+        };
     </script>
 </body>
 
