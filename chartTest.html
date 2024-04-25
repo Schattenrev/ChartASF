@@ -14,68 +14,74 @@
     <canvas id="myChart"></canvas>
 
     <script>
-        // Function to fetch CSV file
-        async function fetchCSV(url) {
-            const response = await fetch(url);
-            const data = await response.text();
-            return data;
-        }
+    // Function to fetch CSV file
+    async function fetchCSV(url) {
+        const response = await fetch(url);
+        const data = await response.text();
+        return data;
+    }
 
-        // Function to update pie chart based on selected year
-        function updateChart(selectedYear) {
-            fetchCSV('path_to_your_csv_file.csv')
-                .then(csvData => {
-                    // Parse CSV data
-                    const rows = csvData.split('\n').map(row => row.split(','));
-                    const filteredRows = rows.filter(row => row[0].trim() === selectedYear && (row[1].trim() === 'Closed' || row[1].trim() === 'Open')); // Filter for selected year and both statuses
-                    const labels = filteredRows.map(row => row[1].trim()); // Include both "Closed" and "Open" statuses
-                    const data = filteredRows.map(row => parseFloat(row[2]));
+    // Function to update pie chart based on selected year
+    function updateChart(selectedYear) {
+        fetchCSV('path_to_your_csv_file.csv')
+            .then(csvData => {
+                // Parse CSV data
+                const rows = csvData.split('\n').map(row => row.split(','));
+                const filteredRows = rows.filter(row => row[0].trim() === selectedYear && (row[1].trim() === 'Closed' || row[1].trim() === 'Open')); // Filter for selected year and both statuses
+                
+                if(filteredRows.length === 0){
+                    console.error('No data available for the selected year:', selectedYear);
+                    return;
+                }
 
-                    // Get chart canvas element
-                    const ctx = document.getElementById('myChart').getContext('2d');
+                const labels = filteredRows.map(row => row[1].trim()); // Include both "Closed" and "Open" statuses
+                const data = filteredRows.map(row => parseFloat(row[2]));
 
-                    // Check if chart already exists, destroy it, and then create new chart
-                    if (window.myChart) {
-                        window.myChart.destroy();
+                // Get chart canvas element
+                const ctx = document.getElementById('myChart').getContext('2d');
+
+                // Check if chart already exists, destroy it, and then create new chart
+                if (window.myChart) {
+                    window.myChart.destroy();
+                }
+
+                window.myChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Pie Chart',
+                            data: data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.5)', // Color for "Closed"
+                                'rgba(54, 162, 235, 0.5)', // Color for "Open"
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
-
-                    window.myChart = new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Pie Chart',
-                                data: data,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.5)', // Color for "Closed"
-                                    'rgba(54, 162, 235, 0.5)', // Color for "Open"
-                                ],
-                                borderColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching CSV file:', error);
                 });
-        }
+            })
+            .catch(error => {
+                console.error('Error fetching or parsing CSV file:', error);
+            });
+    }
 
-        // Add event listener to dropdown to update chart when year selection changes
-        document.getElementById('yearSelector').addEventListener('change', function() {
-            const selectedYear = this.value;
-            updateChart(selectedYear);
-        });
+    // Add event listener to dropdown to update chart when year selection changes
+    document.getElementById('yearSelector').addEventListener('change', function() {
+        const selectedYear = this.value;
+        updateChart(selectedYear);
+    });
 
-        // Initial chart creation with default year
-        updateChart('2017');
-    </script>
+    // Initial chart creation with default year
+    updateChart('2017');
+</script>
 </body>
-</html> g
+</html> 
