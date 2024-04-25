@@ -3,46 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pie Chart from CSV</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <title>Pie Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <canvas id="pieChart"></canvas>
+    <canvas id="myChart"></canvas>
 
     <script>
-        const csvFile = 'your_data.csv'; // Replace 'your_data.csv' with your actual file name
+        // Function to fetch CSV file
+        async function fetchCSV(url) {
+            const response = await fetch(url);
+            const data = await response.text();
+            return data;
+        }
 
-        Papa.parse(csvFile, {
-            complete: function(results) {
-                const data = results.data;
-                const labels = [];
-                const values = [];
+        // URL of your CSV file
+        const csvUrl = 'path_to_your_csv_file.csv';
 
-                for (let i = 1; i < data.length; i++) {
-                    labels.push(data[i][0]); // Assuming category names are in the first column (index 0)
-                    values.push(data[i][1]); // Assuming data values are in the second column (index 1)
-                }
+        // Parse CSV data, filter for year 2017, and create chart
+        fetchCSV(csvUrl)
+            .then(csvData => {
+                // Parse CSV data
+                const rows = csvData.split('\n').map(row => row.split(','));
+                const filteredRows = rows.filter(row => row[0].trim() === '2017'); // Filter for year 2017
+                const labels = filteredRows.slice(1).map(row => row[1].trim());
+                const data = filteredRows.slice(1).map(row => parseFloat(row[2]));
 
-                const ctx = document.getElementById('pieChart').getContext('2d');
-                const chart = new Chart(ctx, {
+                // Create pie chart
+                const ctx = document.getElementById('myChart').getContext('2d');
+                const myChart = new Chart(ctx, {
                     type: 'pie',
                     data: {
                         labels: labels,
                         datasets: [{
-                            data: values,
+                            label: 'Pie Chart',
+                            data: data,
                             backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                            ]
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(54, 162, 235, 0.5)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                            ],
+                            borderWidth: 1
                         }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
                 });
-            }
-        });
+            })
+            .catch(error => {
+                console.error('Error fetching CSV file:', error);
+            });
     </script>
 </body>
 </html>
