@@ -1,96 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.14.3/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource@0.1.0"></script>
+    <title>Pie Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-    <div>
-        <canvas id="myChart"></canvas>
-    </div>
+    <canvas id="myChart"></canvas>
 
     <script>
-        var chartColors = {
-            red: 'rgb(255, 99, 132)',
-            blue: 'rgb(54, 162, 235)'
-        };
+        // Function to fetch CSV file
+        async function fetchCSV(url) {
+            const response = await fetch(url);
+            const data = await response.text();
+            return data;
+        }
 
-        var color = Chart.helpers.color;
-        var config = {
-            type: 'pie',
-            data: {
-                datasets: [{
-                    type: 'line',
-                    yAxisID: 'temperature',
-                    backgroundColor: 'transparent',
-                    borderColor: chartColors.red,
-                    pointBackgroundColor: chartColors.red,
-                    tension: 0,
-                    fill: false
-                }, {
-                    yAxisID: 'precipitation',
-                    backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
-                    borderColor: 'transparent'
-                }]
-            },
-            plugins: [ChartDataSource],
-            options: {
-                title: {
-                    display: true,
-                    text: 'Sheet data source (index) sample'
-                },
-                scales: {
-                    xAxes: [{
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Month'
-                        }
-                    }],
-                    yAxes: [{
-                        id: 'temperature',
-                        gridLines: {
-                            drawOnChartArea: false
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Temperature (°C)'
-                        }
-                    }, {
-                        id: 'precipitation',
-                        position: 'right',
-                        gridLines: {
-                            drawOnChartArea: false
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Precipitation (mm)'
-                        }
-                    }]
-                },
-                plugins: {
-                    datasource: {
-                        type: 'sheet',
-                        url: 'q_per_all.xlsx',
-                        rowMapping: 'index',
-                        datasetLabels: 'Sheet1!B1:C1',
-                        indexLabels: 'Sheet1!A2:A3',
-                        data: 'Sheet1!C2:C3'
+        // URL of your CSV file
+        const csvUrl = 'q_per_all_csv.csv';
+
+        // Parse CSV data, filter for year 2017 and both statuses, and create chart
+        fetchCSV(csvUrl)
+            .then(csvData => {
+                // Parse CSV data
+                const rows = csvData.split('\n').map(row => row.split(','));
+                const filteredRows = rows.filter(row => row[0].trim() === '2017' && (row[1].trim() === 'Closed' || row[1].trim() === 'Open')); // Filter for year 2017 and both statuses
+                const labels = filteredRows.map(row => row[1].trim()); // Include both "Closed" and "Open" statuses
+                const data = filteredRows.map(row => parseFloat(row[2]));
+
+                // Create pie chart
+                const ctx = document.getElementById('myChart').getContext('2d');
+                const myChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Pie Chart',
+                            data: data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.5)', // Color for "Closed"
+                                'rgba(54, 162, 235, 0.5)', // Color for "Open"
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
-                }
-            }
-        };
-
-        window.onload = function () {
-            var ctx = document.getElementById('myChart').getContext('2d');
-            window.myChart = new Chart(ctx, config);
-        };
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching CSV file:', error);
+            });
     </script>
 </body>
-
 </html>
