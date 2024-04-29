@@ -137,3 +137,27 @@
   // Create and render the chart after fetching data
   // ...
 </script>
+
+<script>
+  async function fetchData() {
+    const csvUrl = 'path/to/your/data.csv'; // Replace with the path to your CSV file
+    const response = await fetch(csvUrl);
+    const csv = await response.text();
+
+    // Parse CSV data into arrays
+    const lines = csv.trim().split('\n');
+    const headers = lines.shift().split('\t');
+    const data = lines.map(line => Object.fromEntries(line.split('\t').map((value, index) => [headers[index], value])));
+
+    // ... rest of your code to process the CSV data as before
+
+    // Create and render the chart after fetching data
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      // ... your chart configuration here
+    });
+  }
+
+  fetchData();
+</script>
+
