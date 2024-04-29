@@ -174,6 +174,87 @@
 </body>
 </html>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js from CSV</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script>
+        const chart = document.getElementById('myChart').getContext('2d');
+        const csvFile = 'your_csv_file.csv'; // Replace with your CSV file name
+
+        fetchData(csvFile);
+
+        async function fetchData(csvFile) {
+            const response = await fetch(csvFile);
+            const csvData = await response.text();
+            processData(csvData);
+        }
+
+        function processData(csvData) {
+            const lines = csvData.split('\n');
+            const labels = [];
+            const datasets = [];
+            let currentStatus = '';
+
+            for (let i = 1; i < lines.length; i++) {
+                const row = lines[i].split(',');
+                const year = row[0];
+                const status = row[1];
+                const count = parseInt(row[2]);
+
+                if (status !== currentStatus) {
+                    datasets.push({
+                        label: status,
+                        data: [],
+                        backgroundColor: generateRandomColor(),
+                        borderColor: generateRandomColor(),
+                        borderWidth: 1,
+                        stack: 'combined' // Stack the bars
+                    });
+                    currentStatus = status;
+                }
+
+                labels.push(year);
+                datasets[datasets.length - 1].data.push(count);
+            }
+
+            // Create chart
+            new Chart(chart, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            function generateRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+        }
+    </script>
+</body>
+</html>
+
 
 
 
