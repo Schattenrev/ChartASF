@@ -181,3 +181,106 @@ async function fetchData() {
 fetchData();
 </script>
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approval Status Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+
+  <style>
+    /* CSS to adjust the size of the canvas element */
+    #myChart {
+      max-width: 1080px;
+      /* Set maximum width */
+      max-height: 720px;
+      /* Set maximum height */
+      width: 100%;
+      /* Make sure it scales to its container */
+      height: auto;
+      /* Automatically adjust height based on width */
+    }
+  </style>
+
+</head>
+
+<body>
+  <canvas id="myChart"></canvas>
+
+  <script>
+    // Replace with the actual CSV file name
+    const csvFile = 'your_csv_file.csv';
+
+    let chartData; // To store the parsed data
+
+    // Fetch data from CSV file
+    async function fetchData() {
+      const response = await fetch(csvFile);
+      const csvData = await response.text();
+      chartData = parseCSVData(csvData); // Call the parsing function
+    }
+
+    fetchData().then(() => {
+      createChart(chartData); // Call the chart creation function after data is fetched
+    });
+
+    function parseCSVData(csvData) {
+      const lines = csvData.trim().split('\n');
+      const headers = lines.shift().split('\t');
+      const data = lines.map(line => Object.fromEntries(line.split('\t').map((value, index) => [headers[index], value])));
+
+      // Organize data into a format suitable for Chart.js
+      const years = [...new Set(data.map(entry => entry.D_YEAR))];
+      const statuses = [...new Set(data.map(entry => entry.Approval_Status))];
+      const datasets = statuses.map(status => ({
+        label: status,
+        data: years.map(year => {
+          const entry = data.find(item => item.D_YEAR === year && item.Approval_Status === status);
+          return entry ? parseInt(entry.CountOfApproval_Status) : 0;
+        }),
+        backgroundColor: getRandomColor(),
+      }));
+
+      function getRandomColor() {
+        return `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.7)`;
+      }
+
+      return { years, datasets }; // Return the parsed data
+    }
+
+    function createChart(data) {
+      const ctx = document.getElementById('myChart').getContext('2d');
+      const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.years,
+          datasets: data.datasets,
+        },
+        options: {
+          scales: {
+            x: {
+              stacked: true,
+            },
+            y: {
+              stacked: true,
+            },
+          },
+          plugins: {
+            zoom: {
+              // Enable zooming and panning
+              zoomEnabled: true,
+              panEnabled: true,
+            }
+          }
+        },
+      });
+    }
+  </script>
+</body>
+
+</html>
+
+
