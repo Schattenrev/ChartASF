@@ -106,3 +106,59 @@
   </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approval Status Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>  <style>
+    /* CSS to adjust the size of the canvas element */
+    #myChart {
+        max-width: 1080px;
+        max-height: 720px;
+        width: 100%;
+        height: auto;
+    }
+</style>
+
+</head>
+<body>
+  <canvas id="myChart"></canvas>
+
+  <script>
+    // Parse CSV data into arrays (same as before)
+    // ... your existing code to parse CSV data ...
+
+    // Create and render the chart
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: years,
+        datasets: datasets,
+      },
+      options: {
+        scales: {
+          x: {
+            stacked: true,
+          },
+          y: {
+            stacked: true,
+          },
+        },
+        plugins: {
+          zoom: {
+            // Enable zooming and panning
+            zoomEnabled: true,
+            panEnabled: true,
+          }
+        }
+      },
+    });
+  </script>
+</body>
+</html>
+
