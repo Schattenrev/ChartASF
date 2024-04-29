@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Approval Status Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
   <style>
     /* CSS to adjust the size of the canvas element */
     #myChart {
-        max-width: 1080px; /* Set maximum width */
-        max-height: 720px; /* Set maximum height */
-        width: 100%; /* Make sure it scales to its container */
-        height: auto; /* Automatically adjust height based on width */
+      max-width: 1080px;
+      /* Set maximum width */
+      max-height: 720px;
+      /* Set maximum height */
+      width: 100%;
+      /* Make sure it scales to its container */
+      height: auto;
+      /* Automatically adjust height based on width */
     }
-</style>
-  
+  </style>
+
 </head>
+
 <body>
   <canvas id="myChart"></canvas>
 
@@ -101,8 +108,16 @@
             stacked: true,
           },
         },
+        plugins: {
+          zoom: {
+            // Enable zooming and panning
+            zoomEnabled: true,
+            panEnabled: true,
+          }
+        }
       },
     });
   </script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,19 @@
     <style>
         /* CSS to adjust the size of the canvas element */
         #pieChart {
-            max-width: 400px; /* Set maximum width */
-            max-height: 400px; /* Set maximum height */
-            width: 100%; /* Make sure it scales to its container */
-            height: auto; /* Automatically adjust height based on width */
+            max-width: 400px;
+            /* Set maximum width */
+            max-height: 400px;
+            /* Set maximum height */
+            width: 100%;
+            /* Make sure it scales to its container */
+            height: auto;
+            /* Automatically adjust height based on width */
         }
     </style>
-    
+
 </head>
+
 <body>
     <h2>Pie Chart</h2>
     <div>
@@ -26,84 +32,79 @@
             <!-- Options will be dynamically populated from JavaScript -->
         </select>
     </div>
-    <div    >
+    <div>
         <canvas id="pieChart" width="400" height="400"></canvas>
     </div>
 
     <script>
-        // Parse CSV data
-        const csvData = `Year,Status,Count
-                        2017,Closed,18
-                        2017,Open,36
-                        2018,Closed,47
-                        2018,Open,1522
-                        2019,Open,1585
-                        2020,Open,1956
-                        2021,Closed,7
-                        2021,Open,3374
-                        2022,Open,3399
-                        2023,Open,3907
-                        2024,Open,1550`;
+        // Fetch the CSV data
+        fetch('q_per_all_csv.csv')
+            .then(response => response.text())
+            .then(csvData => {
+                // Parse CSV data
+                const rows = csvData.trim().split('\n').slice(1); // Remove header
+                const data = rows.map(row => row.split(','));
 
-        // Split CSV into rows and parse each row
-        const rows = csvData.trim().split('\n').slice(1); // Remove header
-        const data = rows.map(row => row.split(','));
+                // Get unique years
+                const years = Array.from(new Set(data.map(row => row[0])));
 
-        // Get unique years
-        const years = Array.from(new Set(data.map(row => row[0])));
+                // Populate dropdown menu with years (same as before)
+                const yearDropdown = document.getElementById('year');
+                years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearDropdown.appendChild(option);
+                });
 
-        // Populate dropdown menu with years
-        const yearDropdown = document.getElementById('year');
-        years.forEach(year => {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            yearDropdown.appendChild(option);
-        });
-
-        // Function to filter data based on selected year
-        function filterData(selectedYear) {
-            return data.filter(row => row[0] === selectedYear);
-        }
-
-        // Function to generate pie chart
-        function generatePieChart(selectedYear) {
-            const filteredData = filterData(selectedYear);
-            const labels = filteredData.map(row => row[1]); // Status
-            const counts = filteredData.map(row => parseInt(row[2])); // Count
-
-            const ctx = document.getElementById('pieChart').getContext('2d');
-            // Destroy previous chart instance
-            if(window.myPieChart !== undefined) {
-                window.myPieChart.destroy();
-            }
-            // Create new chart instance
-            window.myPieChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: counts,
-                        backgroundColor: ['#FF6384', '#36A2EB'], // Colors for Closed and Open
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: `Status Distribution for Year ${selectedYear}`
-                    }
+                // Function to filter data based on selected year (same as before)
+                function filterData(selectedYear) {
+                    return data.filter(row => row[0] === selectedYear);
                 }
+
+                // Function to generate pie chart
+                function generatePieChart(selectedYear) {
+                    const filteredData = filterData(selectedYear);
+                    const labels = filteredData.map(row => row[1]); // Status
+                    const counts = filteredData.map(row => parseInt(row[2])); // Count
+
+                    const ctx = document.getElementById('pieChart').getContext('2d');
+                    // Destroy previous chart instance (same as before)
+                    if (window.myPieChart !== undefined) {
+                        window.myPieChart.destroy();
+                    }
+                    // Create new chart instance (same as before)
+                    window.myPieChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: counts,
+                                backgroundColor: ['#FF6384', '#36A2EB'], // Colors for Closed and Open
+                            }]
+                        },
+                        options: {
+                            title: {
+                                display: true,
+                                text: `Status Distribution for Year ${selectedYear}`
+                            }
+                        }
+                    });
+                }
+
+                // Initial chart generation (call after parsing CSV data)
+                generatePieChart(years[0]);
+
+                // Event listener for dropdown change (same as before)
+                yearDropdown.addEventListener('change', function () {
+                    const selectedYear = this.value;
+                    generatePieChart(selectedYear);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching CSV data:', error);
             });
-        }
-
-        // Initial chart generation
-        generatePieChart(years[0]);
-
-        // Event listener for dropdown change
-        yearDropdown.addEventListener('change', function() {
-            const selectedYear = this.value;
-            generatePieChart(selectedYear);
-        });
     </script>
 </body>
+
 </html>
