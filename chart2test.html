@@ -7,37 +7,45 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div>
-        <label for="csvFile">Select CSV file:</label>
-        <input type="file" id="csvFile" accept=".csv">
-    </div>
     <canvas id="myChart"></canvas>
     <script>
         const chart = document.getElementById('myChart').getContext('2d');
+        const csvFile = 'q_per_status_csv.csv'; // Replace with your CSV file name
 
-        document.getElementById('csvFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+        fetchData(csvFile);
 
-            reader.onload = function(event) {
-                const csvData = event.target.result;
-                // Process CSV data and create chart
-                processData(csvData);
-            };
-
-            reader.readAsText(file);
-        });
+        async function fetchData(csvFile) {
+            const response = await fetch(csvFile);
+            const csvData = await response.text();
+            processData(csvData);
+        }
 
         function processData(csvData) {
-            // Parse CSV data
             const lines = csvData.split('\n');
             const labels = [];
-            const data = [];
+            const datasets = [];
+            let currentStatus = '';
+
             for (let i = 1; i < lines.length; i++) {
                 const row = lines[i].split(',');
-                labels.push(row[0]);
+                const year = row[0];
+                const status = row[1];
                 const count = parseInt(row[2]);
-                data.push(count);
+
+                if (status !== currentStatus) {
+                    datasets.push({
+                        label: status,
+                        data: [],
+                        backgroundColor: generateRandomColor(),
+                        borderColor: generateRandomColor(),
+                        borderWidth: 1,
+                        stack: 'combined' // Stack the bars
+                    });
+                    currentStatus = status;
+                }
+
+                labels.push(year);
+                datasets[datasets.length - 1].data.push(count);
             }
 
             // Create chart
@@ -45,35 +53,7 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: 'Count of Approvals by Status',
-                        data: data,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(67, 67, 67, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(204, 0, 0, 0.2)',
-                            'rgba(135, 206, 235, 0.2)',
-                            'rgba(255, 140, 0, 0.2)',
-                            'rgba(128, 128, 128, 0.2)',
-                            'rgba(0, 172, 219, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(67, 67, 67, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(204, 0, 0, 1)',
-                            'rgba(135, 206, 235, 1)',
-                            'rgba(255, 140, 0, 1)',
-                            'rgba(128, 128, 128, 1)',
-                            'rgba(0, 172, 219, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
+                    datasets: datasets
                 },
                 options: {
                     scales: {
@@ -85,8 +65,16 @@
                     }
                 }
             });
+
+            function generateRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
         }
     </script>
 </body>
 </html>
-
