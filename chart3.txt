@@ -1,0 +1,50 @@
+<div>
+  <select id="year-selector"></select>
+  <canvas id="myChart"></canvas>
+</div>
+
+const chartData = {
+  // ... data will be populated later
+};
+
+const ctx = document.getElementById('myChart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'bar',
+  data: chartData,
+  options: {
+    // ... chart options
+  }
+});
+
+const yearSelector = document.getElementById('year-selector');
+const years = [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+
+years.forEach(year => {
+  const option = document.createElement('option');
+  option.value = year;
+  option.text = year;
+  yearSelector.appendChild(option);
+});
+
+yearSelector.addEventListener('change', () => {
+  const selectedYear = yearSelector.value;
+  updateChartData(selectedYear);
+  chart.update();
+});
+
+function updateChartData(selectedYear) {
+  // Filter data based on selected year
+  chartData.data.labels = [];
+  chartData.data.datasets[0].data = [];
+
+  // ... populate data based on filtering
+  chart.data.labels.push('Closed');
+  chart.data.labels.push('Open');
+
+  // ... populate data based on filtering
+  chartData.data.datasets[0].data.push(// count for Closed tickets);
+  chartData.data.datasets[0].data.push(// count for Open tickets);
+}
+
+// Initial chart data population
+updateChartData(2024); // Update with default year
