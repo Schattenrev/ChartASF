@@ -1,10 +1,18 @@
-<div>
-  <select id="year-selector"></select>
-  <canvas id="myChart"></canvas>
-</div>
-
 const chartData = {
-  // ... data will be populated later
+  labels: [],
+  datasets: [{
+    label: 'Ticket Status',
+    data: [],
+    backgroundColor: [
+      'rgba(255, 99, 132, 0.2)',
+      'rgba(54, 162, 235, 0.2)'
+    ],
+    borderColor: [
+      'rgba(255, 99, 132, 1)',
+      'rgba(54, 162, 235, 1)'
+    ],
+    borderWidth: 1
+  }]
 };
 
 const ctx = document.getElementById('myChart').getContext('2d');
@@ -12,7 +20,13 @@ const chart = new Chart(ctx, {
   type: 'bar',
   data: chartData,
   options: {
-    // ... chart options
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
   }
 });
 
@@ -37,14 +51,14 @@ function updateChartData(selectedYear) {
   chartData.data.labels = [];
   chartData.data.datasets[0].data = [];
 
-  // ... populate data based on filtering
-  chart.data.labels.push('Closed');
-  chart.data.labels.push('Open');
-
-  // ... populate data based on filtering
-  chartData.data.datasets[0].data.push(// count for Closed tickets);
-  chartData.data.datasets[0].data.push(// count for Open tickets);
+  // Assuming 'data' is an array of objects with properties 'Year', 'Status', and 'Count'
+  data.forEach(item => {
+    if (item.Year === selectedYear) {
+      chartData.data.labels.push(item.Status);
+      chartData.data.datasets[0].data.push(item.Count);
+    }
+  });
 }
 
-// Initial chart data population
+// Initial chart data population (assuming data is available)
 updateChartData(2024); // Update with default year
