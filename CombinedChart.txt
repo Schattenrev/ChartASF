@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Combined Chart</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+    <style>
+        #myChart {
+            width: 500px;
+            height: 500px;
+        }
+
+        #divchart {
+            width: 500px;
+            height: 500px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <!-- place navbar here -->
+    </header>
+    <main>
+
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div>
+                        <select id="yearSelect" onchange="updateChart()">
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                    <div id="divchart">
+                        <canvas id="myChartPie" width="400" height="400"></canvas>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="container">
+                        <canvas id="myChart"></canvas>
+                        <button id="resetBtn" class="text-center">Reset Zoom</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <footer>
+        <!-- place footer here -->
+    </footer>
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+        integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+        crossorigin="anonymous"></script>
+
+    <script>
+        const data = [
+            { year: 2017, status: 'Closed', count: 18 },
+            { year: 2017, status: 'Open', count: 36 },
+            { year: 2018, status: 'Closed', count: 47 },
+            { year: 2018, status: 'Open', count: 1522 },
+            { year: 2019, status: 'Open', count: 1585 },
+            { year: 2020, status: 'Open', count: 1956 },
+            { year: 2021, status: 'Closed', count: 7 },
+            { year: 2021, status: 'Open', count: 3374 },
+            { year: 2022, status: 'Open', count: 3399 },
+            { year: 2023, status: 'Open', count: 3907 },
+            { year: 2024, status: 'Open', count: 1200 }
+        ];
+
+        let currentYear = 2017; // Default year
+
+        const ctx = document.getElementById('myChartPie').getContext('2d');
+        let myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Status',
+                    data: [],
+                    backgroundColor: [],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        function updateChart() {
+            currentYear = document.getElementById('yearSelect').value;
+            const filteredData = data.filter(item => item.year == currentYear);
+            const labels = filteredData.map(item => item.status);
+            const counts = filteredData.map(item => item.count);
+            const backgroundColors = generateBackgroundColors(filteredData.length);
+
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = counts;
+            myChart.data.datasets[0].backgroundColor = backgroundColors;
+            myChart.update();
+        }
+
+        function generateBackgroundColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(getRandomColor());
+            }
+            return colors;
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Initialize chart with default year
+        updateChart();
+    </script>
+
+    <script>
+        // Parse CSV data into an array of objects
+        const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
+2017,Closed,18
+2017,Partial Received,2
+2017,Rejected,7
+2017,Shipping Details Complete,11
+2017,Supply Details Complete,16
+2018,Closed,47
+2018,Partial Received,2
+2018,Partial Shipment,2
+2018,Pending Approval,1
+2018,Rejected,156
+2018,Shipping Details Complete,67
+2018,Supply Details Complete,1294
+2019,Approved,1
+2019,Partial Shipment,3
+2019,Rejected,71
+2019,Shipping Details Complete,38
+2019,Supply Details Complete,1472
+2020,Partial Shipment,12
+2020,Rejected,178
+2020,Shipping Details Complete,487
+2020,Supply Details Complete,1279
+2021,Closed,7
+2021,Partial Received,1
+2021,Partial Shipment,49
+2021,Rejected,289
+2021,Shipping Details Complete,1513
+2021,Supply Details Complete,1522
+2022,Partial Shipment,46
+2022,Rejected,395
+2022,Shipping Details Complete,1022
+2022,Supply Details Complete,1936
+2023,Approved,16
+2023,Partial Shipment,10
+2023,Pending Approval,5
+2023,Rejected,540
+2023,Shipping Details Complete,1061
+2023,Supply Details Complete,2275
+2024,Pending Approval,75
+2024,Rejected,301
+2024,Supply Details Complete,1174
+`;
+
+        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
+        const data = dataRows.map(row => {
+            const [year, status, count] = row.split(',');
+            return { year: +year, status, count: +count };
+        });
+
+        // Organize data for Chart.js
+        const years = Array.from(new Set(data.map(item => item.year)));
+        const statuses = Array.from(new Set(data.map(item => item.status)));
+        const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#795548', '#FF9800'];
+        const datasets = statuses.map((status, index) => {
+            const counts = years.map(year => {
+                const item = data.find(d => d.year === year && d.status === status);
+                return item ? item.count : 0;
+            });
+            return {
+                label: status,
+                data: counts,
+                backgroundColor: colors[index % colors.length]
+            };
+        });
+
+        // Create chart
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years.map(String),
+                datasets: datasets
+            },
+            options: {
+                plugins: {
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add reset button functionality
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            myChart.resetZoom();
+        });
+    </script>
+</body>
+
+</html>
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Combined Chart</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap CSS v5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+    <style>
+        #myChart {
+            width: 500px;
+            height: 500px;
+        }
+
+        #divchart {
+            width: 500px;
+            height: 500px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <!-- place navbar here -->
+    </header>
+    <main>
+
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div>
+                        <select id="yearSelect" onchange="updateChart()">
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                    <div id="divchart">
+                        <canvas id="myChartPie" width="400" height="400"></canvas>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="container">
+                        <canvas id="myChart"></canvas>
+                        <button id="resetBtn" class="text-center">Reset Zoom</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <footer>
+        <!-- place footer here -->
+    </footer>
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+        integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+        crossorigin="anonymous"></script>
+
+    <script>
+        const data = [
+            { year: 2017, status: 'Closed', count: 18 },
+            { year: 2017, status: 'Open', count: 36 },
+            { year: 2018, status: 'Closed', count: 47 },
+            { year: 2018, status: 'Open', count: 1522 },
+            { year: 2019, status: 'Open', count: 1585 },
+            { year: 2020, status: 'Open', count: 1956 },
+            { year: 2021, status: 'Closed', count: 7 },
+            { year: 2021, status: 'Open', count: 3374 },
+            { year: 2022, status: 'Open', count: 3399 },
+            { year: 2023, status: 'Open', count: 3907 },
+            { year: 2024, status: 'Open', count: 1200 }
+        ];
+
+        let currentYear = 2017; // Default year
+
+        const ctxPie = document.getElementById('myChartPie').getContext('2d');
+        let myChartPie = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Status',
+                    data: [],
+                    backgroundColor: [],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        function updateChart() {
+            currentYear = parseInt(document.getElementById('yearSelect').value);
+            const filteredData = data.filter(item => item.year === currentYear);
+            const labels = filteredData.map(item => item.status);
+            const counts = filteredData.map(item => item.count);
+            const backgroundColors = generateBackgroundColors(filteredData.length);
+
+            myChartPie.data.labels = labels;
+            myChartPie.data.datasets[0].data = counts;
+            myChartPie.data.datasets[0].backgroundColor = backgroundColors;
+            myChartPie.update();
+        }
+
+        function generateBackgroundColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(getRandomColor());
+            }
+            return colors;
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Initialize pie chart with default year
+        updateChart();
+    </script>
+
+    <script>
+        // Parse CSV data into an array of objects
+        const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
+2017,Closed,18
+2017,Partial Received,2
+2017,Rejected,7
+2017,Shipping Details Complete,11
+2017,Supply Details Complete,16
+2018,Closed,47
+2018,Partial Received,2
+2018,Partial Shipment,2
+2018,Pending Approval,1
+2018,Rejected,156
+2018,Shipping Details Complete,67
+2018,Supply Details Complete,1294
+2019,Approved,1
+2019,Partial Shipment,3
+2019,Rejected,71
+2019,Shipping Details Complete,38
+2019,Supply Details Complete,1472
+2020,Partial Shipment,12
+2020,Rejected,178
+2020,Shipping Details Complete,487
+2020,Supply Details Complete,1279
+2021,Closed,7
+2021,Partial Received,1
+2021,Partial Shipment,49
+2021,Rejected,289
+2021,Shipping Details Complete,1513
+2021,Supply Details Complete,1522
+2022,Partial Shipment,46
+2022,Rejected,395
+2022,Shipping Details Complete,1022
+2022,Supply Details Complete,1936
+2023,Approved,16
+2023,Partial Shipment,10
+2023,Pending Approval,5
+2023,Rejected,540
+2023,Shipping Details Complete,1061
+2023,Supply Details Complete,2275
+2024,Pending Approval,75
+2024,Rejected,301
+2024,Supply Details Complete,1174
+`;
+
+        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
+        const csvDataParsed = dataRows.map(row => {
+            const [year, status, count] = row.split(',');
+            return { year: +year, status, count: +count };
+        });
+
+        // Organize data for Chart.js
+        const years = Array.from(new Set(csvDataParsed.map(item => item.year)));
+        const statuses = Array.from(new Set(csvDataParsed.map(item => item.status)));
+        const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#795548', '#FF9800'];
+        const datasets = statuses.map((status, index) => {
+            const counts = years.map(year => {
+                const item = csvDataParsed.find(d => d.year === year && d.status === status);
+                return item ? item.count : 0;
+            });
+            return {
+                label: status,
+                data: counts,
+                backgroundColor: colors[index % colors.length]
+            };
+        });
+
+        // Create chart
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years.map(String),
+                datasets: datasets
+            },
+            options: {
+                plugins: {
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add reset button functionality
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            myChart.resetZoom();
+        });
+    </script>
+</body>
+
+</html>
