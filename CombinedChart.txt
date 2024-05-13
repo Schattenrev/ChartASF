@@ -438,4 +438,92 @@
 2021,Shipping Details Complete,1513
 2021,Supply Details Complete,1522
 2022,Partial Shipment,46
-2022,Rejected
+2022,Rejected,395
+2022,Shipping Details Complete,1022
+2022,Supply Details Complete,1936
+2023,Approved,16
+2023,Partial Shipment,10
+2023,Pending Approval,5
+2023,Rejected,540
+2023,Shipping Details Complete,1061
+2023,Supply Details Complete,2275
+2024,Pending Approval,75
+2024,Rejected,301
+2024,Supply Details Complete,1174
+`;
+
+        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
+        const csvDataParsed = dataRows.map(row => {
+            const [year, status, count] = row.split(',');
+            return { year: +year, status, count: +count };
+        });
+
+        // Organize data for Chart.js
+        const years = Array.from(new Set(csvDataParsed.map(item => item.year)));
+        const statuses = Array.from(new Set(csvDataParsed.map(item => item.status)));
+        const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#795548', '#FF9800'];
+        const datasets = statuses.map((status, index) => {
+            const counts = years.map(year => {
+                const item = csvDataParsed.find(d => d.year === year && d.status === status);
+                return item ? item.count : 0;
+            });
+            return {
+                label: status,
+                data: counts,
+                backgroundColor: colors[index % colors.length]
+            };
+        });
+
+        // Create chart
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years.map(String),
+                datasets: datasets
+            },
+            options: {
+                plugins: {
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add reset button functionality
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            myChart.resetZoom();
+        });
+    </script>
+</body>
+
+</html>
