@@ -12,6 +12,18 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+    <style>
+        #myChart {
+            width: 500px;
+            height: 500px;
+        }
+        #divchart {
+            width: 500px;
+            height: 500px;
+            
+        }
+    </style>
     
 </head>
 
@@ -32,7 +44,7 @@
                 <option value="2024">2024</option>
             </select>
         </div>
-        <div>
+        <div id="divchart">
             <canvas id="myChart" width="400" height="400"></canvas>
         </div>
 
