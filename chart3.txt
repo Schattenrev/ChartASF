@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pie Chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body>
+    <div>
+        <select id="yearSelect" onchange="updateChart()">
+            <option value="2017">2017</option>
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+        </select>
+    </div>
+    <div>
+        <canvas id="myChart" width="400" height="400"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+const data = [
+    { year: 2017, status: 'Closed', count: 18 },
+    { year: 2017, status: 'Open', count: 36 },
+    { year: 2018, status: 'Closed', count: 47 },
+    { year: 2018, status: 'Open', count: 1522 },
+    { year: 2019, status: 'Open', count: 1585 },
+    { year: 2020, status: 'Open', count: 1956 },
+    { year: 2021, status: 'Closed', count: 7 },
+    { year: 2021, status: 'Open', count: 3374 },
+    { year: 2022, status: 'Open', count: 3399 },
+    { year: 2023, status: 'Open', count: 3907 },
+    { year: 2024, status: 'Open', count: 1200 }
+];
+
+let currentYear = 2017; // Default year
+
+const ctx = document.getElementById('myChart').getContext('2d');
+let myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Status',
+            data: [],
+            backgroundColor: [],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+
+function updateChart() {
+    currentYear = document.getElementById('yearSelect').value;
+    const filteredData = data.filter(item => item.year == currentYear);
+    const labels = filteredData.map(item => item.status);
+    const counts = filteredData.map(item => item.count);
+    const backgroundColors = generateBackgroundColors(filteredData.length);
+    
+    myChart.data.labels = labels;
+    myChart.data.datasets[0].data = counts;
+    myChart.data.datasets[0].backgroundColor = backgroundColors;
+    myChart.update();
+}
+
+function generateBackgroundColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        colors.push(getRandomColor());
+    }
+    return colors;
+}
+
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+// Initialize chart with default year
+updateChart();
