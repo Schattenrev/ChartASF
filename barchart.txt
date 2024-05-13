@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoomable Chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"></script>
+</head>
+<body>
+    <canvas id="myChart" width="800" height="400"></canvas>
+
+    <script>
+        // Parse CSV data into an array of objects
+        const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
+        2017,Closed,18
+        2017,Partial Received,2
+        ...
+        2024,Rejected,301
+        2024,Supply Details Complete,1174`;
+
+        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
+        const data = dataRows.map(row => {
+            const [year, status, count] = row.split(',');
+            return { year: +year, status, count: +count };
+        });
+
+        // Organize data for Chart.js
+        const years = Array.from(new Set(data.map(item => item.year)));
+        const statuses = Array.from(new Set(data.map(item => item.status)));
+        const datasets = statuses.map(status => {
+            const counts = years.map(year => {
+                const item = data.find(d => d.year === year && d.status === status);
+                return item ? item.count : 0;
+            });
+            return { label: status, data: counts };
+        });
+
+        // Create chart
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years.map(String),
+                datasets: datasets
+            },
+            options: {
+                plugins: {
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
