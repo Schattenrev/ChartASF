@@ -1,251 +1,154 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Zoomable Chart</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approval Status Chart</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"></script>
+
+  <style>
+    /* CSS to adjust the size of the canvas element */
+    #myChart {
+      max-width: 800px;
+      /* Set maximum width */
+      max-height: 500px;
+      /* Set maximum height */
+      width: 100%;
+      /* Make sure it scales to its container */
+      height: auto;
+      /* Automatically adjust height based on width */
+    }
+  </style>
+
 </head>
+
 <body>
-    <canvas id="myChart" width="800" height="400"></canvas>
+  <div class="container">
+    <canvas id="myChart"></canvas>
+    <button id="resetBtn" class="text-center">Reset Zoom</button>
+  </div>
+  
 
-    <script>
-        // Parse CSV data into an array of objects
-        const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
-        2017,Closed,18
-        2017,Partial Received,2
-        ...
-        2024,Rejected,301
-        2024,Supply Details Complete,1174`;
+  <script>
+    // Parse CSV data into an array of objects
+    const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
+2017,Closed,18
+2017,Partial Received,2
+2017,Rejected,7
+2017,Shipping Details Complete,11
+2017,Supply Details Complete,16
+2018,Closed,47
+2018,Partial Received,2
+2018,Partial Shipment,2
+2018,Pending Approval,1
+2018,Rejected,156
+2018,Shipping Details Complete,67
+2018,Supply Details Complete,1294
+2019,Approved,1
+2019,Partial Shipment,3
+2019,Rejected,71
+2019,Shipping Details Complete,38
+2019,Supply Details Complete,1472
+2020,Partial Shipment,12
+2020,Rejected,178
+2020,Shipping Details Complete,487
+2020,Supply Details Complete,1279
+2021,Closed,7
+2021,Partial Received,1
+2021,Partial Shipment,49
+2021,Rejected,289
+2021,Shipping Details Complete,1513
+2021,Supply Details Complete,1522
+2022,Partial Shipment,46
+2022,Rejected,395
+2022,Shipping Details Complete,1022
+2022,Supply Details Complete,1936
+2023,Approved,16
+2023,Partial Shipment,10
+2023,Pending Approval,5
+2023,Rejected,540
+2023,Shipping Details Complete,1061
+2023,Supply Details Complete,2275
+2024,Pending Approval,75
+2024,Rejected,301
+2024,Supply Details Complete,1174
+`;
 
-        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
-        const data = dataRows.map(row => {
-            const [year, status, count] = row.split(',');
-            return { year: +year, status, count: +count };
-        });
+    const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
+    const data = dataRows.map(row => {
+      const [year, status, count] = row.split(',');
+      return { year: +year, status, count: +count };
+    });
 
-        // Organize data for Chart.js
-        const years = Array.from(new Set(data.map(item => item.year)));
-        const statuses = Array.from(new Set(data.map(item => item.status)));
-        const datasets = statuses.map(status => {
-            const counts = years.map(year => {
-                const item = data.find(d => d.year === year && d.status === status);
-                return item ? item.count : 0;
-            });
-            return { label: status, data: counts };
-        });
+    // Organize data for Chart.js
+    const years = Array.from(new Set(data.map(item => item.year)));
+    const statuses = Array.from(new Set(data.map(item => item.status)));
+    const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#795548', '#FF9800'];
+    const datasets = statuses.map((status, index) => {
+      const counts = years.map(year => {
+        const item = data.find(d => d.year === year && d.status === status);
+        return item ? item.count : 0;
+      });
+      return {
+        label: status,
+        data: counts,
+        backgroundColor: colors[index % colors.length]
+      };
+    });
 
-        // Create chart
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: years.map(String),
-                datasets: datasets
+    // Create chart
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: years.map(String),
+        datasets: datasets
+      },
+      options: {
+        plugins: {
+          zoom: {
+            zoom: {
+              wheel: {
+                enabled: true,
+              },
+              pinch: {
+                enabled: true
+              },
+              mode: 'xy',
             },
-            options: {
-                plugins: {
-                    zoom: {
-                        zoom: {
-                            wheel: {
-                                enabled: true,
-                            },
-                            pinch: {
-                                enabled: true
-                            },
-                            mode: 'xy',
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: true,
-                    },
-                    y: {
-                        stacked: true
-                    }
-                }
+            pan: {
+              enabled: true,
+              mode: 'xy',
             }
-        });
-    </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Zoomable Chart</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"></script>
-</head>
-<body>
-    <canvas id="myChart" width="800" height="400"></canvas>
-
-    <script>
-        // Parse CSV data into an array of objects
-        const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
-        2017,Closed,18
-        2017,Partial Received,2
-        ...
-        2024,Rejected,301
-        2024,Supply Details Complete,1174`;
-
-        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
-        const data = dataRows.map(row => {
-            const [year, status, count] = row.split(',');
-            return { year: +year, status, count: +count };
-        });
-
-        // Organize data for Chart.js
-        const years = Array.from(new Set(data.map(item => item.year)));
-        const statuses = Array.from(new Set(data.map(item => item.status)));
-        const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#795548', '#FF9800'];
-        const datasets = statuses.map((status, index) => {
-            const counts = years.map(year => {
-                const item = data.find(d => d.year === year && d.status === status);
-                return item ? item.count : 0;
-            });
-            return { 
-                label: status,
-                data: counts,
-                backgroundColor: colors[index % colors.length]
-            };
-        });
-
-        // Create chart
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: years.map(String),
-                datasets: datasets
-            },
-            options: {
-                plugins: {
-                    zoom: {
-                        zoom: {
-                            wheel: {
-                                enabled: true,
-                            },
-                            pinch: {
-                                enabled: true
-                            },
-                            mode: 'xy',
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Year'
-                        }
-                    },
-                    y: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Count'
-                        }
-                    }
-                }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            title: {
+              display: true,
+              text: 'Year'
             }
-        });
-    </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Zoomable Chart</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"></script>
-</head>
-<body>
-    <canvas id="myChart" width="800" height="400"></canvas>
-    <button id="resetBtn">Reset Zoom</button>
-
-    <script>
-        // Parse CSV data into an array of objects
-        const csvData = `D_YEAR,Approval_Status,CountOfApproval_Status
-        2017,Closed,18
-        2017,Partial Received,2
-        ...
-        2024,Rejected,301
-        2024,Supply Details Complete,1174`;
-
-        const dataRows = csvData.trim().split('\n').slice(1); // Skip header row
-        const data = dataRows.map(row => {
-            const [year, status, count] = row.split(',');
-            return { year: +year, status, count: +count };
-        });
-
-        // Organize data for Chart.js
-        const years = Array.from(new Set(data.map(item => item.year)));
-        const statuses = Array.from(new Set(data.map(item => item.status)));
-        const colors = ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#795548', '#FF9800'];
-        const datasets = statuses.map((status, index) => {
-            const counts = years.map(year => {
-                const item = data.find(d => d.year === year && d.status === status);
-                return item ? item.count : 0;
-            });
-            return { 
-                label: status,
-                data: counts,
-                backgroundColor: colors[index % colors.length]
-            };
-        });
-
-        // Create chart
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: years.map(String),
-                datasets: datasets
-            },
-            options: {
-                plugins: {
-                    zoom: {
-                        zoom: {
-                            wheel: {
-                                enabled: true,
-                            },
-                            pinch: {
-                                enabled: true
-                            },
-                            mode: 'xy',
-                        },
-                        pan: {
-                            enabled: true,
-                            mode: 'xy',
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Year'
-                        }
-                    },
-                    y: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Count'
-                        }
-                    }
-                }
+          },
+          y: {
+            stacked: true,
+            title: {
+              display: true,
+              text: 'Count'
             }
-        });
+          }
+        }
+      }
+    });
 
-        // Add reset button functionality
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            myChart.resetZoom();
-        });
-    </script>
+    // Add reset button functionality
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      myChart.resetZoom();
+    });
+  </script>
+
 </body>
+
 </html>
